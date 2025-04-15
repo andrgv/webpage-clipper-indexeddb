@@ -18,16 +18,38 @@ function extractTextContent(doc) {
   };
 }
 
+// Function to fetch and convert favicon to Base64
+async function fetchFaviconBase64() {
+  const faviconLink = document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
+  if (!faviconLink || !faviconLink.href) return null;
+
+  try {
+    const response = await fetch(faviconLink.href);
+    const blob = await response.blob();
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.error('Failed to fetch favicon:', error);
+    return null;
+  }
+}
+
 // Function to clip the current page
-function clipCurrentPage() {
+async function clipCurrentPage() {
   const textData = extractTextContent(document);
+  const faviconBase64 = await fetchFaviconBase64();
   const pageData = {
     title: document.title,
     url: window.location.href,
     timestamp: new Date().toISOString(),
     content: textData.content,
     wordCount: textData.wordCount,
-    readingTime: textData.readingTime
+    readingTime: textData.readingTime,
+    favicon: faviconBase64 // Include favicon in the data
   };
 
   // Send the data to the background script

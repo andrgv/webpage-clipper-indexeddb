@@ -4,7 +4,7 @@
  */
 
 const DB_NAME = 'WebpageClipperDB';
-const DB_VERSION = 2; // Incremented from 1 to 2
+const DB_VERSION = 3; // Incremented from 2 to 3
 const STORE_NAME = 'clippedPages';
 
 // Database connection
@@ -31,6 +31,11 @@ async function initDB() {
       // Migration to version 2: Add new metadata fields
       console.log('Migrated to schema version 2');
     }
+
+    if (oldVersion < 3) {
+      // Migration to version 3: Add support for favicon storage
+      console.log('Migrated to schema version 3');
+    }
   };
   
   try {
@@ -55,10 +60,11 @@ async function addClippedPage(pageData) {
     throw new Error('Database not initialized');
   }
   
-  // Add timestamp if not provided
+  // Add timestamp and favicon if not provided
   const data = { 
     ...pageData,
-    timestamp: pageData.timestamp || new Date().toISOString()
+    timestamp: pageData.timestamp || new Date().toISOString(),
+    favicon: pageData.favicon || null // Ensure favicon is included
   };
   
   try {
