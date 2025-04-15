@@ -5,25 +5,31 @@
 
 // Function to extract text content from the DOM
 function extractTextContent(doc) {
-  // Get all text nodes from the body
   const bodyText = doc.body.innerText || doc.body.textContent || '';
-  
-  // Limit to first 100 words
   const words = bodyText.split(/\s+/);
-  const firstHundredWords = words.slice(0, 100).join(' ');
-  
-  return firstHundredWords + (words.length > 100 ? '...' : '');
+  const wordCount = words.length;
+  const readingTime = Math.ceil(wordCount / 200); // Assuming 200 words per minute
+  const firstHundredWords = words.slice(0, 100).join(' ') + (words.length > 100 ? '...' : '');
+
+  return {
+    content: firstHundredWords,
+    wordCount,
+    readingTime
+  };
 }
 
 // Function to clip the current page
 function clipCurrentPage() {
+  const textData = extractTextContent(document);
   const pageData = {
     title: document.title,
     url: window.location.href,
     timestamp: new Date().toISOString(),
-    content: extractTextContent(document)
+    content: textData.content,
+    wordCount: textData.wordCount,
+    readingTime: textData.readingTime
   };
-  
+
   // Send the data to the background script
   chrome.runtime.sendMessage({
     action: 'clipPage',

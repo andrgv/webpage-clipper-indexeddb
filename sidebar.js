@@ -48,11 +48,13 @@ async function renderClippedPages() {
         <div class="clip-title">${page.title}</div>
         <a href="${page.url}" class="clip-url" target="_blank">${page.url}</a>
         <div class="clip-date">${formatDate(page.timestamp)}</div>
+        <div class="clip-metadata">
+          <span>Words: ${page.wordCount}</span>
+          <span>Reading time: ${page.readingTime} min</span>
+        </div>
         <div class="clip-content">${page.content}</div>
         <button class="delete-btn" data-id="${page.id}">×</button>
       `;
-      
-      // Add the item to the list
       listElement.appendChild(clipItem);
     });
     
@@ -126,7 +128,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
     })();
   }
-  return true;
+  // Don't return true here as we're not sending an asynchronous response
+  // Returning true was causing duplicate clips due to message port staying open
 });
 
 // Initialize when the document is loaded
